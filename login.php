@@ -31,7 +31,11 @@ function manage_post_with_user($title,$database) {
         $_SESSION['user.id'] = $user_access['id'];
         $_SESSION['user.firstName'] = $user_access['first_name'];
         $_SESSION['user.lastName'] = $user_access['last_name'];
-        user_raz_failures($database); 
+        if($user_access['failures']>0){
+            user_raz_failures($database); 
+
+        }
+
         http_redirection('home.php'); // => ACCUEIL
     }
     // AUTHENTIFICATION KO
@@ -98,6 +102,7 @@ UPDATE user SET failures = 0 WHERE user = '{$_POST['user']}'
 END;
     sql_exec($database,$user_raz_failures_query);
 } 
+
 
 function html_login_send_page($title,$main_html) {
     html_send_page($title,$main_html,FALSE); // pas de header ni footer
