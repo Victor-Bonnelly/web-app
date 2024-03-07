@@ -15,9 +15,13 @@ function sql_log($query) {
 }
 
 // SQL
-function sql_exec($database, $query) {
-    $result = $database->exec($query);
-    sql_log($query);
+function sql_exec($database, $query, $values=[]) {
+    $stmt = $database->prepare($query);
+    foreach ($values as $index => $value) {
+        $stmt->bindValue($value[0], $value[1], $value[2]);
+    }
+    $result = $stmt->execute();
+    sql_log($stmt->getSQL(true));
     return $result;
 }
 

@@ -60,17 +60,20 @@ function manage_post_with_user($title,$database) {
     html_login_send_page($title,html_form($title,TRUE)); // => CONNEXION ERROR
 }
 
+
 function user_block($database) {
-    $user_block_query = <<<END
-UPDATE user SET blocked = 1 WHERE user = '{$_POST['user']}'
-END;
-    sql_exec($database,$user_block_query);
+    $user_block_query = "UPDATE user SET blocked = 1 WHERE user = :user";
+    $values = [
+        [':user', $_POST['user'], SQLITE3_TEXT]
+    ];
+    sql_exec($database, $user_block_query, $values);
 }
 function user_increment_failures($database) {
-    $user_increment_failures_query = <<<END
-UPDATE user SET failures = failures + 1 WHERE user = '{$_POST['user']}'
-END;
-        sql_exec($database,$user_increment_failures_query);
+    $user_increment_failures_query ="UPDATE user SET failures = failures + 1 WHERE user = :user";
+    $values = [
+        [':user', $_POST['user'], SQLITE3_TEXT]
+    ];
+        sql_exec($database,$user_increment_failures_query, $values);
 }
 
 function user_state($database) {
@@ -99,10 +102,11 @@ function user_access($database) {
 }
 
 function user_raz_failures($database) {
-    $user_raz_failures_query = <<<END
-UPDATE user SET failures = 0 WHERE user = '{$_POST['user']}'
-END;
-    sql_exec($database,$user_raz_failures_query);
+    $user_raz_failures_query ="UPDATE user SET failures = 0 WHERE user = :user";
+    $values = [
+        [':user', $_POST['user'], SQLITE3_TEXT]
+    ];
+    sql_exec($database,$user_raz_failures_query, $values);
 } 
 
 
