@@ -2,17 +2,35 @@
 if (session_exist()) {
     session_start();
 }
-$database = new SQLite3('database.db3');
+$database = new SQLite3('..\database.db3');
 
-// SQL
-function sql_exec($database,$query) {
-    return $database->exec($query); 
+function sql_log($query) {
+    $userIp = $_SERVER['REMOTE_ADDR'];
+
+    $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+
+    $logMessage = "[" . date("Y-m-d H:i:s") . "] IP: $userIp, UserID: $userId, Query: " . $query . "\n";
+
+    file_put_contents("../sql.log", $logMessage, FILE_APPEND);
 }
 
-function sql_select($database,$select) {
-    $results = $database->query($select);
-    $rows=[];
-    while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+// SQL
+function sql_exec($database, $query) {
+    $result = $database->exec($query);
+    sql_log($query);
+    return $result;
+}
+
+function sql_select($database, $select, $values) {
+    $stmt = $database->prepare($select);
+    foreach ($values as $index => $value) {
+        $stmt->bindValue($value[0], $value[1], $value[2]);
+    }
+    $result = $stmt->execute();
+    sql_log($stmt->getSQL(true));
+    //sql_log($select); 
+    $rows = [];
+    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
         $rows[] = $row;
     }
     return $rows;
@@ -141,8 +159,8 @@ $page = <<<END
 <!doctype html>
 <head>
 <meta charset="utf-8">
-<link rel="stylesheet" href="mini-default.css">
-<link rel="stylesheet" href="application.css">
+<link rel="stylesheet" href="./mini-default.css">
+<link rel="stylesheet" href=".\application.css">
 <title>$title</title>
 </head>
 <body id="$body_id">
